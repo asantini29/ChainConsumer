@@ -135,6 +135,7 @@ class Plotter:
         columns: list[ColumnName] | None = None,
         filename: list[str | Path] | str | Path | None = None,
         figsize: FigSize | float | int | tuple[float, float] = FigSize.GROW,
+        offset: bool = True,
     ) -> Figure:  # pragma: no cover
         """Plot the chain!
 
@@ -251,14 +252,21 @@ class Plotter:
                     text.set_fontweight("medium")
                     text.set_color(colors.format(chain.color))
         fig.canvas.draw()
-        for ax in axes[-1, :]:
-            offset = ax.get_xaxis().get_offset_text()
-            ax.set_xlabel("{} {}".format(ax.get_xlabel(), f"[{offset.get_text()}]" if offset.get_text() else ""))
-            offset.set_visible(False)
-        for ax in axes[:, 0]:
-            offset = ax.get_yaxis().get_offset_text()
-            ax.set_ylabel("{} {}".format(ax.get_ylabel(), f"[{offset.get_text()}]" if offset.get_text() else ""))
-            offset.set_visible(False)
+
+        if offset:
+            for ax in axes[-1, :]:
+                offset = ax.get_xaxis().get_offset_text()
+                ax.set_xlabel("{} {}".format(ax.get_xlabel(), f"[{offset.get_text()}]" if offset.get_text() else ""))
+                offset.set_visible(False)
+            for ax in axes[:, 0]:
+                offset = ax.get_yaxis().get_offset_text()
+                ax.set_ylabel("{} {}".format(ax.get_ylabel(), f"[{offset.get_text()}]" if offset.get_text() else ""))
+                offset.set_visible(False)
+        else:
+            for ax in axes[-1, :]:
+                ax.xaxis.get_offset_text().set_fontsize(self.config.tick_font_size)
+            for ax in axes[:, 0]:
+                ax.yaxis.get_offset_text().set_fontsize(self.config.tick_font_size)
 
         if self.config.watermark is not None:
             ax_watermark = axes[-1, 0] if flip and len(base.columns) == 2 else None
