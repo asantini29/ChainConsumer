@@ -806,6 +806,8 @@ class Plotter:
 
                 display_x_ticks = False
                 display_y_ticks = False
+                hide_x_ticks_labels = False
+                hide_y_ticks_labels = False
                 if i < j:
                     ax.set_frame_on(False)
                     ax.set_xticks([])
@@ -829,45 +831,68 @@ class Plotter:
                             ax.set_xscale("log")
                             logx = True
                     if i != n - 1 or (self.config.flip and j == n - 1):
-                        ax.set_xticks([])
+                        #ax.set_xticks([])
+                        hide_x_ticks_labels = True
                     else:
                         if p2 in base.blind:
                             ax.set_xticks([])
                         else:
                             display_x_ticks = True
+
                         if isinstance(p2, str):
                             ax.set_xlabel(self.config.get_label(p2), fontsize=self.config.label_font_size)
                     if j != 0 or (self.config.plot_hists and i == 0):
-                        ax.set_yticks([])
+                        hide_y_ticks_labels = True
+
                     else:
                         if p1 in base.blind:
                             ax.set_yticks([])
                         else:
                             display_y_ticks = True
+
                         if isinstance(p1, str):
                             ax.set_ylabel(self.config.get_label(p1), fontsize=self.config.label_font_size)
                     if display_x_ticks:
                         if self.config.diagonal_tick_labels:
                             _ = [label.set_rotation(45) for label in ax.get_xticklabels()]
                         _ = [label.set_fontsize(self.config.tick_font_size) for label in ax.get_xticklabels()]
+                        
                         if not logx:
                             ax.xaxis.set_major_locator(MaxNLocator(self.config.max_ticks, prune="lower"))
                             ax.xaxis.set_major_formatter(formatter_x)
                         else:
                             ax.xaxis.set_major_locator(LogLocator(numticks=self.config.max_ticks))
+                           
+                    elif hide_x_ticks_labels:
+                        if not logx:
+                            ax.xaxis.set_major_locator(MaxNLocator(self.config.max_ticks, prune="lower"))
+                        else:
+                            ax.xaxis.set_major_locator(LogLocator(numticks=self.config.max_ticks))
+                        ax.tick_params(axis='x', labelbottom=False)
                     else:
                         ax.set_xticks([])
-                    if display_y_ticks:
+
+                    if display_y_ticks:      
                         if self.config.diagonal_tick_labels:
                             _ = [label.set_rotation(45) for label in ax.get_yticklabels()]
                         _ = [label.set_fontsize(self.config.tick_font_size) for label in ax.get_yticklabels()]
+                    
                         if not logy:
                             ax.yaxis.set_major_locator(MaxNLocator(self.config.max_ticks, prune="lower"))
                             ax.yaxis.set_major_formatter(formatter_y)
                         else:
                             ax.yaxis.set_major_locator(LogLocator(numticks=self.config.max_ticks))
+                    
+                    elif hide_y_ticks_labels:
+                        if not logy:
+                            ax.yaxis.set_major_locator(MaxNLocator(self.config.max_ticks, prune="lower"))                        
+                        else:
+                            ax.yaxis.set_major_locator(LogLocator(numticks=self.config.max_ticks))
+                        ax.tick_params(axis='y', labelleft=False)
+                    
                     else:
                         ax.set_yticks([])
+                    
                     if (i != j or not self.config.plot_hists) or (self.config.flip and i == 1):
                         ax.set_ylim(base.extents[p1])
                     ax.set_xlim(base.extents[p2])
